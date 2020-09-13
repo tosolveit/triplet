@@ -1,0 +1,4 @@
+[core]
+    remote = triplet-bucket
+['remote "triplet-bucket"']
+    url = gs://triplet-bucket
