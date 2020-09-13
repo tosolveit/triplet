@@ -97,3 +97,5 @@ with tqdm(total=4323*samp) as pbar:
             if result[0] == int(folder):
                 successfully_predict_counter+=1
             pbar.update(1)
+
+print(successfully_predict_counter / 4323.)
