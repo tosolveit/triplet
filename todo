@@ -1,0 +1,2 @@
+centralize configuration, a lot of things repeat
+put some processes into functions, easier to read the code
