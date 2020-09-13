@@ -1,6 +1,4 @@
 [core]
     remote = s3remote
-['remote "triplet-bucket"']
-    url = gs://triplet-bucket
 ['remote "s3remote"']
     url = s3://sagemaker-ilker-aws
