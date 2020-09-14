@@ -1,0 +1,17 @@
+model:
+  name: 'model-rikj.h5'
+  epochs: 50
+  embeddingsize: 256
+  learning_rate:
+triplet:
+  num_classes_per_batch: 8
+  num_images_per_class: 4
+image:
+  width: 120
+  height: 120
+  channels: 3
+  extension: 'jpeg'
+annoy:
+  ntrees: 10
+augment:
+  nsamples: 50000

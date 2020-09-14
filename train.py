@@ -1,57 +1,31 @@
 import tensorflow as tf
-import numpy as np
-from tensorflow import keras
 import tensorflow_addons as tfa
-
-
+import ruamel.yaml
+from box import Box
 from processinput import ProcessInput
 from helpers import extractzip
 from datetime import datetime
+from gempoolinglayer import GeMPoolingLayer
 
-
-class params:
-    num_classes_per_batch = 8
-    num_images_per_class = 4
-    num_epochs = 3
-    img_height = 120
-    img_width = 120
-    channels = 3
+# get configuration file
+cnf = Box.from_yaml(filename="config.yml", Loader=ruamel.yaml.Loader)
 
 extractzip('train.zip','train')
 datadir = 'train'
-train_func = ProcessInput(data_dir=datadir, params=params, file_extension='jpeg')
-dataset = train_func.train_input_fn()
-input_shape = (params.img_width, params.img_height)
 
-# train
-class GeMPoolingLayer(tf.keras.layers.Layer):
-    def __init__(self, p=1., eps=1e-6):
-        super().__init__()
-        self.p = p
-        self.eps = eps
-
-    def call(self, inputs: tf.Tensor, **kwargs):
-        inputs = tf.clip_by_value(
-            inputs,
-            clip_value_min=self.eps,
-            clip_value_max=tf.reduce_max(inputs)
-        )
-        inputs = tf.pow(inputs, self.p)
-        inputs = tf.reduce_mean(inputs, axis=[1, 2], keepdims=False)
-        inputs = tf.pow(inputs, 1. / self.p)
-
-        return inputs
-
-    def get_config(self):
-        return {
-            'p': self.p,
-            'eps': self.eps
-        }
+# create tensorflow dataset object
+processinput = ProcessInput(data_dir=datadir,
+                            num_classes_per_batch=cnf.model.num_classes_per_batch,
+                            num_images_per_class=cnf.model.num_image_per_class,
+                            channels=cnf.image.channels,
+                            img_width=cnf.image.width,
+                            img_height=cnf.image.height,
+                            file_extension=cnf.image.extension)
+dataset = processinput.train_input_fn()
 
 
 reg = tf.keras.regularizers
-input_shape = (params.img_height, params.img_width, 3)
-embeddingsize = 256
+input_shape = (cnf.image.height, cnf.image.width, cnf.image.channels)
 with tf.device('/gpu:0'):
     imagenet = tf.keras.applications.Xception(
         input_shape=input_shape,
@@ -64,7 +38,7 @@ with tf.device('/gpu:0'):
     x_input = tf.keras.Input(shape=input_shape)
     x = imagenet(x_input)
     x = GeMPoolingLayer()(x)
-    x = tf.keras.layers.Dense(embeddingsize, activation='softplus', kernel_regularizer=reg.l2(), dtype='float32')(x)
+    x = tf.keras.layers.Dense(cnf.model.embeddingsize, activation='softplus', kernel_regularizer=reg.l2(), dtype='float32')(x)
 
     model = tf.keras.models.Model(inputs=x_input, outputs=x, name="embedding")
 
@@ -83,12 +57,11 @@ with tf.device('/gpu:0'):
     history = model.fit(
         dataset,
         callbacks=callbacks,
-        epochs=50)
+        epochs=cnf.model.epochs)
 
 
 model.save(
-    'model-rijk.h5',
+    cnf.model.name,
     save_format='h5',
     overwrite=True
 )
-

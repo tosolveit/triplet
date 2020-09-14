@@ -3,13 +3,15 @@ import os
 import Augmentor
 import shutil
 import subprocess
-# copy to a new folder
+import ruamel.yaml
+from box import Box
 
+# get configuration file
+cnf = Box.from_yaml(filename="config.yml", Loader=ruamel.yaml.Loader)
+
+# define file and destination path
 rawdata = 'pix512.zip'
 outputfoldername = 'pix512'
-width = 120
-height = 120
-nsamples = 50000  # number of augmentations that will be use for train and test folders
 
 
 def extractzip(zippedfilename, outputfoldername):
@@ -83,7 +85,10 @@ def augmentation_strategy(datadir, width=120, height=120, nsamples=50000):
 for newfolder in ['train', 'test']:
     extractzip(zippedfilename=rawdata, outputfoldername=newfolder)
     fileToFolder(newfolder)
-    augmentation_strategy(datadir=newfolder, width=width, height=height, nsamples=nsamples)
+    augmentation_strategy(datadir=newfolder,
+                          width=cnf.image.width,
+                          height=cnf.image.height,
+                          nsamples=cnf.augment.nsamples)
     #if newfolder == 'train':
         #movegroundtruth_to_train(datadir=newfolder)
     shutil.copytree(src=os.path.join(newfolder, 'output'), dst='output')
@@ -96,6 +101,3 @@ for newfolder in ['train', 'test']:
     command = ['zip', '-r', newfolder + '.zip', newfolder]
     subprocess.check_call(command)
     shutil.rmtree(newfolder)
-
-
-

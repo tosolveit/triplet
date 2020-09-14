@@ -4,9 +4,20 @@ import numpy as np
 
 # from tensorflow.contrib.data.python.ops.interleave_ops import DirectedInterleaveDataset
 class ProcessInput:
-    def __init__(self, data_dir, params, file_extension='png'):
+    def __init__(self,
+                 data_dir,
+                 num_classes_per_batch=8,
+                 num_images_per_class=4,
+                 channels=3,
+                 img_width=120,
+                 img_height=120,
+                 file_extension='png'):
         self.data_dir = data_dir
-        self.params = params
+        self.num_classes_per_batch = num_classes_per_batch
+        self.num_images_per_class = num_images_per_class
+        self.channels = channels
+        self.img_width = img_width
+        self.img_height = img_height
         self.file_extension = file_extension
 
     def train_input_fn(self):
@@ -28,8 +39,8 @@ class ProcessInput:
                     all_directories]
 
         num_labels = len(all_directories)
-        num_classes_per_batch = self.params.num_classes_per_batch
-        num_images_per_class = self.params.num_images_per_class
+        num_classes_per_batch = self.num_classes_per_batch
+        num_images_per_class = self.num_images_per_class
 
         def get_label_index(s):
             return labels_index.index(s.numpy().decode("utf-8").split("/")[-2])
@@ -45,9 +56,9 @@ class ProcessInput:
 
         def load_and_preprocess_image(path):
             image = tf.io.read_file(path)
-            image = tf.image.decode_jpeg(image, channels=self.params.channels)
+            image = tf.image.decode_jpeg(image, channels=self.channels)
             image = tf.image.convert_image_dtype(image, tf.float32)
-            image = tf.image.resize(image, [self.params.img_height, self.params.img_width])
+            image = tf.image.resize(image, [self.img_height, self.img_width])
             # return tf.data.Dataset.from_tensors((image, tf.py_function(get_label_index, [path], tf.int64)))
             return image, tf.py_function(get_label_index, [path], tf.int64)
 
