@@ -5,11 +5,17 @@ from box import Box
 from src.processinput import ProcessInput
 from datetime import datetime
 from src.gempoolinglayer import GeMPoolingLayer
+import os
 
-# get configuration file
-cnf = Box.from_yaml(filename="../params.yaml", Loader=ruamel.yaml.Loader)
+# get configuration file path
+p = os.path.abspath(os.path.join(__file__, "../.."))
+params_path = os.path.join(p, 'params.yaml')
 
-datadir = 'data/train'
+# read config based on params, params.yaml is at the project root
+cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
+
+# define input data
+datadir = os.path.join(p, 'data/train')
 
 # create tensorflow dataset object
 processinput = ProcessInput(data_dir=datadir,
