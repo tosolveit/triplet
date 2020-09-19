@@ -56,16 +56,6 @@ def augmentation_strategy(datadir, width=120, height=120, nsamples=50000):
     p.skew_corner(probability=0.1,magnitude=0.3)
     p.sample(nsamples)
 
-# todo: resizing image has to be added
-# def movegroundtruth_to_train(datadir='train',width=120, height=120):
-#     for classfolder in os.listdir(datadir):
-#         if classfolder == 'output':
-#             continue
-#         for image in os.listdir(os.path.join(datadir, classfolder)):
-#             input_path = os.path.join(datadir, classfolder, image)
-#             output_path = os.path.join(datadir, 'output', classfolder, image)
-#             shutil.move(input_path, output_path)
-
 
 # apply strategies and organize folders
 for newfolder in ['train', 'test']:
