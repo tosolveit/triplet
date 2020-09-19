@@ -4,9 +4,25 @@ import shutil
 import subprocess
 import ruamel.yaml
 from box import Box
+import os.path as path
+import shutil
 
 # get configuration file
-cnf = Box.from_yaml(filename="../params.yaml", Loader=ruamel.yaml.Loader)
+p = path.abspath(path.join(__file__, "../.."))
+params_path = os.path.join(p, 'params.yaml')
+
+# read config based on params, params.yaml is at the project root
+cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
+
+# define train and test data path
+train_stage = os.path.join(p, 'data/train_stage')
+test_stage = os.path.join(p, 'data/test_stage')
+
+# source and destination paths to save processed outputs
+datasets = dict()
+datasets[train_stage] = os.path.join(p, 'data/train')
+datasets[test_stage] = os.path.join(p, 'data/test')
+
 
 def fileToFolder(datadir, exten='jpeg'):
     '''
@@ -56,22 +72,27 @@ def augmentation_strategy(datadir, width=120, height=120, nsamples=50000):
     p.sample(nsamples)
 
 
+def generate_augmentation(data):
 # apply strategies and organize folders
-for newfolder in ['train', 'test']:
-    fileToFolder(newfolder)
-    augmentation_strategy(datadir=newfolder,
+    augmentation_strategy(datadir=data,
                           width=cnf.image.width,
                           height=cnf.image.height,
                           nsamples=cnf.augment.nsamples)
-    #if newfolder == 'train':
-        #movegroundtruth_to_train(datadir=newfolder)
-    shutil.copytree(src=os.path.join(newfolder, 'output'), dst='output')
-    shutil.rmtree(path=newfolder)
-    shutil.move(src='output', dst=newfolder)
-
+    #if data == 'train':
+        #movegroundtruth_to_train(datadir=data)
+    shutil.copytree(src=os.path.join(data, 'output'), dst='output')
+    shutil.rmtree(path=data)
+    shutil.move(src='output', dst=data)
+    
     # zip the folders but remove if they exist
-    if os.path.isdir(newfolder + '.zip'):
-        shutil.rmtree(newfolder + '.zip')
-    command = ['zip', '-r', newfolder + '.zip', newfolder]
+    if os.path.isdir(data + '.zip'):
+        shutil.rmtree(data + '.zip')
+    command = ['zip', '-r', data + '.zip', data]
     subprocess.check_call(command)
-    shutil.rmtree(newfolder)
+    shutil.rmtree(data)
+
+
+for source, destination in datasets.items():
+    shutil.copytree(source, destination)
+    fileToFolder(destination)
+    generate_augmentation(destination)
