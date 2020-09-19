@@ -3,14 +3,12 @@ import tensorflow_addons as tfa
 import ruamel.yaml
 from box import Box
 from src.processinput import ProcessInput
-from src.helpers import extractzip
 from datetime import datetime
 from src.gempoolinglayer import GeMPoolingLayer
 
 # get configuration file
-cnf = Box.from_yaml(filename="../config.yml", Loader=ruamel.yaml.Loader)
+cnf = Box.from_yaml(filename="../params.yaml", Loader=ruamel.yaml.Loader)
 
-extractzip('train.zip', 'train')
 datadir = 'data/train'
 
 # create tensorflow dataset object
@@ -43,7 +41,7 @@ with tf.device('/gpu:0'):
     model = tf.keras.models.Model(inputs=x_input, outputs=x, name="embedding")
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(0.0001),
+        optimizer=tf.keras.optimizers.Adam(lr=cnf.optimizers.adam.learning_rate),
         loss=tfa.losses.TripletSemiHardLoss())
 
     logs = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
