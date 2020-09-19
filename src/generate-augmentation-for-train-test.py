@@ -7,21 +7,7 @@ import ruamel.yaml
 from box import Box
 
 # get configuration file
-cnf = Box.from_yaml(filename="../config.yml", Loader=ruamel.yaml.Loader)
-
-# define file and destination path
-rawdata = '../data/pix512.zip'
-outputfoldername = '../data/pix512'
-
-
-def extractzip(zippedfilename, outputfoldername):
-    if os.path.isdir(outputfoldername):
-        shutil.rmtree(outputfoldername)
-    with ZipFile(zippedfilename, 'r') as zipObj:
-       # Extract all the contents of zip file in different directory
-       zipObj.extractall()
-    os.rename(zippedfilename.split('.')[0], outputfoldername)
-
+cnf = Box.from_yaml(filename="../params.yaml", Loader=ruamel.yaml.Loader)
 
 def fileToFolder(datadir, exten='jpeg'):
     '''
@@ -83,7 +69,6 @@ def augmentation_strategy(datadir, width=120, height=120, nsamples=50000):
 
 # apply strategies and organize folders
 for newfolder in ['train', 'test']:
-    extractzip(zippedfilename=rawdata, outputfoldername=newfolder)
     fileToFolder(newfolder)
     augmentation_strategy(datadir=newfolder,
                           width=cnf.image.width,
