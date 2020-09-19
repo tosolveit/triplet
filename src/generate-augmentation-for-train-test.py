@@ -4,11 +4,9 @@ import shutil
 import subprocess
 import ruamel.yaml
 from box import Box
-import os.path as path
-import shutil
 
-# get configuration file
-p = path.abspath(path.join(__file__, "../.."))
+# get configuration file path
+p = os.path.abspath(os.path.join(__file__, "../.."))
 params_path = os.path.join(p, 'params.yaml')
 
 # read config based on params, params.yaml is at the project root
