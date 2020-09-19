@@ -2,16 +2,16 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import ruamel.yaml
 from box import Box
-from processinput import ProcessInput
-from helpers import extractzip
+from src.processinput import ProcessInput
+from src.helpers import extractzip
 from datetime import datetime
-from gempoolinglayer import GeMPoolingLayer
+from src.gempoolinglayer import GeMPoolingLayer
 
 # get configuration file
-cnf = Box.from_yaml(filename="config.yml", Loader=ruamel.yaml.Loader)
+cnf = Box.from_yaml(filename="../config.yml", Loader=ruamel.yaml.Loader)
 
-extractzip('train.zip','train')
-datadir = 'train'
+extractzip('train.zip', 'train')
+datadir = 'data/train'
 
 # create tensorflow dataset object
 processinput = ProcessInput(data_dir=datadir,
