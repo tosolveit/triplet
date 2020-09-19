@@ -1,5 +1,4 @@
 model:
-  name: 'model-rikj.h5'
   epochs: 50
   embeddingsize: 256
   learning_rate:
@@ -15,3 +14,6 @@ annoy:
   ntrees: 10
 augment:
   nsamples: 50000
+optimizers:
+  adam:
+    learning: 0.0001
