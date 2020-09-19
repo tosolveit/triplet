@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 class GeMPoolingLayer(tf.keras.layers.Layer):
     def __init__(self, p=1., eps=1e-6):
         super().__init__()
