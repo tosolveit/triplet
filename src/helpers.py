@@ -2,6 +2,7 @@ import os
 import shutil
 from zipfile import ZipFile
 
+
 def extractzip(zippedfilename, outputfoldername):
     if os.path.isdir(outputfoldername):
         shutil.rmtree(outputfoldername)
