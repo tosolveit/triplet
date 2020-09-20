@@ -2,6 +2,7 @@ import tensorflow as tf
 import pathlib
 import numpy as np
 
+
 # from tensorflow.contrib.data.python.ops.interleave_ops import DirectedInterleaveDataset
 class ProcessInput:
     def __init__(self,
@@ -65,9 +66,12 @@ class ProcessInput:
         def generator():
             while True:
                 # Sample the labels that will compose the batch
-                labels = np.random.choice(range(num_labels),
-                                          num_classes_per_batch,
-                                          replace=False)
+                try:
+                    labels = np.random.choice(range(num_labels),
+                                              num_classes_per_batch,
+                                              replace=False)
+                except ValueError:
+                    continue
 
                 for label in labels:
                     for _ in range(num_images_per_class):
