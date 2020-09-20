@@ -76,19 +76,13 @@ def generate_augmentation(data):
                           width=cnf.image.width,
                           height=cnf.image.height,
                           nsamples=cnf.augment.nsamples)
+    outputsavelocationpath = os.path.join(p, 'data/output')
     #if data == 'train':
         #movegroundtruth_to_train(datadir=data)
-    shutil.copytree(src=os.path.join(data, 'output'), dst='output')
+    shutil.copytree(src=os.path.join(data, 'output'), dst=outputsavelocationpath)
     shutil.rmtree(path=data)
-    shutil.move(src='output', dst=data)
+    shutil.move(src=outputsavelocationpath, dst=data)
     
-    # zip the folders but remove if they exist
-    if os.path.isdir(data + '.zip'):
-        shutil.rmtree(data + '.zip')
-    command = ['zip', '-r', data + '.zip', data]
-    subprocess.check_call(command)
-    shutil.rmtree(data)
-
 
 for source, destination in datasets.items():
     shutil.copytree(source, destination)
