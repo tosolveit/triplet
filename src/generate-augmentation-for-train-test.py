@@ -1,7 +1,6 @@
 import os
 import Augmentor
 import shutil
-import subprocess
 import ruamel.yaml
 from box import Box
 

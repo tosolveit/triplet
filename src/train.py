@@ -3,7 +3,6 @@ import tensorflow_addons as tfa
 import ruamel.yaml
 from box import Box
 from datetime import datetime
-import subprocess
 
 from processinput import ProcessInput
 from gempoolinglayer import GeMPoolingLayer
