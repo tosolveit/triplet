@@ -67,7 +67,6 @@ jobs:
           git fetch --prune
           dvc pull data/data.csv.dvc
           dvc data/repro
-          echo 'reproduced data'
 
           # other staging
           bash pipeline.sh
