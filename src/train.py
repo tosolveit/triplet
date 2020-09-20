@@ -2,10 +2,17 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 import ruamel.yaml
 from box import Box
-from src.processinput import ProcessInput
 from datetime import datetime
-from src.gempoolinglayer import GeMPoolingLayer
+import subprocess
+
+from processinput import ProcessInput
+from gempoolinglayer import GeMPoolingLayer
+from helpers import check_gpus, extractzip
 import os
+
+
+# check if gpus are found on the machine and list them
+check_gpus()
 
 # get configuration file path
 p = os.path.abspath(os.path.join(__file__, "../.."))
@@ -15,12 +22,17 @@ params_path = os.path.join(p, 'params.yaml')
 cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
 
 # define input data
-datadir = os.path.join(p, 'data/train')
+traindata = os.path.join(p, 'data/train')
+
+# create and model path
+modelpath = os.path.join(p, cnf.model.name)
+
+
 
 # create tensorflow dataset object
-processinput = ProcessInput(data_dir=datadir,
-                            num_classes_per_batch=cnf.model.num_classes_per_batch,
-                            num_images_per_class=cnf.model.num_image_per_class,
+processinput = ProcessInput(data_dir=traindata,
+                            num_classes_per_batch=cnf.triplet.num_classes_per_batch,
+                            num_images_per_class=cnf.triplet.num_images_per_class,
                             channels=cnf.image.channels,
                             img_width=cnf.image.width,
                             img_height=cnf.image.height,
@@ -30,7 +42,9 @@ dataset = processinput.train_input_fn()
 
 reg = tf.keras.regularizers
 input_shape = (cnf.image.height, cnf.image.width, cnf.image.channels)
-with tf.device('/gpu:0'):
+
+
+def train():
     imagenet = tf.keras.applications.Xception(
         input_shape=input_shape,
         weights='imagenet',
@@ -47,10 +61,10 @@ with tf.device('/gpu:0'):
     model = tf.keras.models.Model(inputs=x_input, outputs=x, name="embedding")
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(lr=cnf.optimizers.adam.learning_rate),
+        optimizer=tf.keras.optimizers.Adam(lr=cnf.model.optimizers.adam.learning_rate),
         loss=tfa.losses.TripletSemiHardLoss())
 
-    logs = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    logs = os.path.join(p, "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
     callbacks = [
         tf.keras.callbacks.ReduceLROnPlateau(monitor='loss', patience=2, verbose=1),
         tf.keras.callbacks.EarlyStopping(monitor='loss', patience=5, verbose=1, restore_best_weights=True),
@@ -63,9 +77,12 @@ with tf.device('/gpu:0'):
         callbacks=callbacks,
         epochs=cnf.model.epochs)
 
+    model.save(
+        modelpath,
+        save_format='h5',
+        overwrite=True
+    )
 
-model.save(
-    cnf.model.name,
-    save_format='h5',
-    overwrite=True
-)
+
+if __name__ == '__main__':
+    train()
