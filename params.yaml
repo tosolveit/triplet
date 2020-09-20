@@ -1,5 +1,5 @@
 model:
-  name: 'model-triplet.h5'
+  name: 'model-rijk.h5'
   epochs: 1
   embeddingsize: 256
   optimizers:
