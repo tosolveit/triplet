@@ -70,6 +70,8 @@ jobs:
 
           # other staging
           bash pipeline.sh
+          python src/train.py
+          python src/evaluate.py
 
           echo "## Triplet training metrics" > report.md
           cat metrics.txt >> report.md
