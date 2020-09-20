@@ -1,0 +1,8 @@
+extract-input-zip:
+  cmd: unzip -qq pix512.zip
+  deps:
+  - path: pix512.zip
+    md5: 848a04f0c4b33e188ea507a0cdec5e4e
+  outs:
+  - path: pix512
+    md5: 50ab7ee09580c03820488c8589be3ba1.dir

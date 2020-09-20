@@ -1,0 +1,7 @@
+stages:
+  extract-input-zip:
+    cmd: unzip -qq pix512.zip
+    deps:
+    - pix512.zip
+    outs:
+    - pix512
