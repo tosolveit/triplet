@@ -3,7 +3,7 @@ name: triplet
 on: [push]
 
 jobs:
-  unittest:
+  tests:
     runs-on: [ubuntu-latest]
     container: docker://dvcorg/cml-py3:latest
 
@@ -23,6 +23,7 @@ jobs:
           pytest
 
   deploy-cloud-runner:
+    needs: tests
     runs-on: [ubuntu-latest]
     container: docker://dvcorg/cml
 
