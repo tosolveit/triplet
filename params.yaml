@@ -14,6 +14,8 @@ image:
   channels: 3
   extension: 'jpeg'
 annoy:
+  index_name: 'rijk-embedding.ann'
   ntrees: 10
+  similarity: 'euclidean'
 augment:
   nsamples: 10000
