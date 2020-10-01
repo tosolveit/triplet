@@ -1,9 +1,6 @@
 from evaluate import Evaluate
-from mymodule import MyModule
 import pytest
-
 from pytest_mock import mocker
-
 import tensorflow as tf
 
 
