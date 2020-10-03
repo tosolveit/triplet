@@ -14,7 +14,6 @@ jobs:
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          apt install imagemagick -y
           pip install -e .[dev]
           pytest
 
