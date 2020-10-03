@@ -5,7 +5,7 @@ on: [push]
 jobs:
   tests:
     runs-on: [ubuntu-latest]
-    container: docker://dvcorg/cml-py3:latest
+    container: dvcorg/cml-py3:latest
 
     steps:
       - uses: actions/checkout@v2
@@ -14,13 +14,15 @@ jobs:
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          apt-get update -y
+          apt-get install python3-dev -y
           pip install -e .[dev]
           pytest
 
   deploy-cloud-runner:
     needs: tests
     runs-on: [ubuntu-latest]
-    container: docker://dvcorg/cml
+    container: dvcorg/cml
 
     steps:
       - name: deploy
