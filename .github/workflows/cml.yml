@@ -79,7 +79,8 @@ jobs:
           apt-get update -y
           apt-get install python3-dev -y
           apt install imagemagick -y
-          pip install -r requirements.txt
+
+          pip install -e .[dev]
           pip install dvc[s3]
 
 
