@@ -13,8 +13,6 @@ jobs:
       - name: unittest
         env:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           apt-get update -y
           apt-get install python3-dev -y
