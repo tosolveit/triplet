@@ -21,7 +21,7 @@ jobs:
   deploy-cloud-runner:
     needs: tests
     runs-on: [ubuntu-latest]
-    container: docker://dvcorg/cml
+    container: docker://dvcorg/cml-py3
 
     steps:
       - name: deploy
