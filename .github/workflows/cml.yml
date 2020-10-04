@@ -76,8 +76,14 @@ jobs:
           apt-get install python3-dev -y
           apt install imagemagick -y
 
+          echo 'will modify setup.py or add requirements.txt'
           pip install -e .[dev]
           pip install dvc[s3]
+          pip install nvgpu
+
+          CUDA_VISIBLE_DEVICES=$(nvgpu available)
+          echo 'available gpus'
+          echo $CUDA_VISIBLE_DEVICES
 
 
           # DVC stuff
