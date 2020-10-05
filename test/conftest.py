@@ -24,12 +24,3 @@ def conf():
     params_path = project_root.joinpath(params_file_name).resolve()
     cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
     return cnf
-
-
-@pytest.fixture(autouse=True)
-def patch_calculate_metric(monkeypatch):
-    def substitute_calculate_metric():
-        score, total = 900, 1000
-        return score, total
-    evaluate = Evaluate()
-    monkeypatch.setattr(evaluate, 'calculate_metric', substitute_calculate_metric)

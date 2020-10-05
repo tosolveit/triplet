@@ -97,8 +97,12 @@ class Evaluate:
         print(f"index loaded as: {self.cnf.annoy.index_name}")
         return u
 
+    @staticmethod
+    def _get_list_of_the_files_in_a_directory(directory):
+        return list(directory.glob('*'))
+
     def sample_from_directory(self, directory):
-        images_in_class = list(directory.glob('*'))
+        images_in_class = Evaluate._get_list_of_the_files_in_a_directory(directory=directory)
         samples = random.sample(images_in_class, self.sample_size)
         return samples
 
@@ -122,8 +126,7 @@ class Evaluate:
         return result
 
     def write_metric(self, metrics_file):
-        metric_file = self.project_root.joinpath(metrics_file).resolve()
-        with open(metric_file, 'w') as outfile:
+        with open(metrics_file, 'w') as outfile:
             metric_score = self.calculate_metric()
             outfile.write("precision @1: " + str(metric_score) + "\n")
 
@@ -132,3 +135,4 @@ if __name__ == '__main__':
     evaluate = Evaluate()
     evaluate.save_index()
     evaluate.write_metric('metrics_file.txt')
+
