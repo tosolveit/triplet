@@ -3,7 +3,6 @@ import pytest
 from pytest_mock import mocker
 import tensorflow as tf
 import os
-from truth.truth import AssertThat
 
 
 def test_read_image_and_convert_to_array__is_numpy(random_image):
