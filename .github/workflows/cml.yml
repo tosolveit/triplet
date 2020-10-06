@@ -91,7 +91,7 @@ jobs:
           # DVC stuff
           git fetch --prune
           dvc pull data/pix512.zip.dvc
-          dvc repro data/dvc.yml
+          dvc repro data/dvc.yaml
 
           # other staging
           cd data
