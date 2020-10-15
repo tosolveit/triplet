@@ -2,7 +2,7 @@ name: triplet
 on:
   push:
     branches:
-      - '!master'
+      - dev
 jobs:
   tests:
     runs-on: [ubuntu-latest]
