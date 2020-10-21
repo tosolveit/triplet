@@ -19,8 +19,23 @@ def test_check_gpus_empty(mocker, capsys):
     # Execute
     check_gpus()
     out, err = capsys.readouterr()
-    print('ilker')
 
     # Validate
     assert out == 'no gpus found on machine\n'
+
+
+def test_check_gpus_multi(mocker, capsys):
+    # Set up
+    mocker.patch('tensorflow.config.list_physical_devices', return_value=[1, 2])
+
+    # Execute
+    check_gpus()
+    out, _ = capsys.readouterr()
+
+    # Validate
+    assert out == 'available gpus:2\n'
+
+
+
+
 
