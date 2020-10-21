@@ -101,7 +101,7 @@ jobs:
           cp -r pix512 train_stage
           cp -r pix512 test_stage
           cd ..
-          python src/generate-augmentation-for-train-test.py
+          python src/generate_augmentation.py
           python src/train.py
           python src/evaluate.py
 
