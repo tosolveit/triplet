@@ -1,9 +1,5 @@
-import io
-import re
 from glob import glob
 from os.path import basename
-from os.path import dirname
-from os.path import join
 from os.path import splitext
 
 from setuptools import setup
@@ -31,6 +27,8 @@ setup(
                       'Augmentor>=0.2.8'
                       ],
     extras_require={
-        'dev': ['pytest==6.1.0','pytest-mock==3.3.1'],
+        'dev': ['pytest==6.1.1',
+                'pytest-mock==3.3.1',
+                'pytest-cov'],
     }
 )
