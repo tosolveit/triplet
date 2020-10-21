@@ -6,7 +6,7 @@ from datetime import datetime
 
 from processinput import ProcessInput
 from gempoolinglayer import GeMPoolingLayer
-from helpers import check_gpus, extractzip
+from helpers import check_gpus
 import os
 
 
