@@ -2,6 +2,7 @@ from evaluate import Evaluate
 import pytest
 from pytest_mock import mocker
 import tensorflow as tf
+from annoy import AnnoyIndex
 import os
 
 
@@ -110,15 +111,45 @@ def test_sample_from_directory(mocker):
 
     # Exercise
     samples = evaluate.sample_from_directory('a_mock_directory')
-
     # Verify
     assert len(samples) == 2
     assert set(samples).issubset(expected).__eq__(True)
 
 
+def test_create_index(mocker, mock_model, random_images):
+    # Set up
+    evaluate = Evaluate(sample_size=2,)
+
+    mocker.patch.object(evaluate, 'load_model')
+    mocker.patch.object(evaluate, 'images_folder')
+
+    evaluate.load_model.return_value = mock_model
+    evaluate.images_folder.return_value = str(random_images)
+
+    # Exercise
+    index = evaluate.create_index()
+
+    # Verify
+    assert isinstance(index, AnnoyIndex) == True
 
 
+def test_save_index(mocker,tmp_path, mock_create_index):
+    # Set up
+    evaluate = Evaluate(sample_size=2.,)
+    mocker.patch.object(evaluate, 'create_index')
+    evaluate.create_index.return_value = mock_create_index
 
+    d = tmp_path / "sub"
+    d.mkdir()
+    p = d / 'test_index'
+    p = str(p)
+
+    # Exercise
+    evaluate.save_index(p)
+
+    # Verify
+    assert os.path.isfile(p) == True
+    assert os.path.basename(d) == 'sub'
 
 
 
