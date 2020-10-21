@@ -49,13 +49,13 @@ class Evaluate:
 
         # initialize params.yaml file
         self.params_path = project_root.joinpath(self.params_file_name).resolve()
-        self.images_folder = project_root.joinpath(self.images_folder_name).resolve()
-        self.images_test_folder = project_root.joinpath(self.images_test_folder_name).resolve()
+        self.images_folder = project_root.joinpath(self.images_folder_name).iterdir()
+        self.images_test_folder = project_root.joinpath(self.images_test_folder_name).iterdir()
         self.cnf = Box.from_yaml(filename=self.params_path, Loader=ruamel.yaml.Loader)
 
         # initialize index object
         self.t = AnnoyIndex(self.cnf.model.embeddingsize, 'euclidean')
-        self.__number_of_classes  = len(list(self.images_test_folder.glob('*')))
+        self.__number_of_classes = len(dir(self.images_test_folder))
 
     def load_model(self):
         """
@@ -78,16 +78,16 @@ class Evaluate:
 
     def create_index(self):
         model = self.load_model()
-        for img_path in self.images_folder.iterdir():
+        for img_path in self.images_folder:
             index, img = self.read_image_and_convert_to_array(img_path=img_path)
             predicted_embedding = model.predict(tf.expand_dims(img, axis=0)).flatten()
             self.t.add_item(int(index), predicted_embedding)
         return self.t
 
-    def save_index(self):
+    def save_index(self, index_name='annoy_index_file'):
         index_object = self.create_index()
         index_object.build(self.cnf.annoy.ntrees)
-        index_object.save(self.cnf.annoy.index_name)
+        index_object.save(index_name)
         print(f"index saved to: {self.cnf.annoy.index_name}")
 
     def load_index(self):
@@ -111,15 +111,15 @@ class Evaluate:
         total = self.__number_of_classes * self.sample_size
         counter = 0
         with tqdm(total=total) as pbar:
-            for test_class in self.images_test_folder.iterdir():
+            for test_class in dir(self.images_test_folder):
                 # skip if the items inside the class is less than sample size
-                if len(tuple(test_class.glob('*'))) < self.sample_size:
+                if len(dir(test_class)) < self.sample_size:
                     continue
                 for sample in self.sample_from_directory(test_class):
                     index, img = self.read_image_and_convert_to_array(img_path=sample)
                     predicted_embedding = model.predict(tf.expand_dims(img, axis=0)).flatten()
                     result = index_base.get_nns_by_vector(predicted_embedding, 1)
-                    if result[0] == int(test_class.name):
+                    if result[0] == int(test_class):
                         counter += 1
                     pbar.update(1)
         result = counter / float(total)
@@ -133,6 +133,6 @@ class Evaluate:
 
 if __name__ == '__main__':
     evaluate = Evaluate()
-    evaluate.save_index()
+    evaluate.save_index(index_name=evaluate.cnf.annoy.index.name)
     evaluate.write_metric('metrics_file.txt')
 
