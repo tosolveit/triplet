@@ -4,6 +4,7 @@ import pytest
 from pytest_mock import mocker
 import os
 from numpy.testing import assert_array_equal
+import numpy as np
 
 
 def test_file_to_folder(random_images):
@@ -11,7 +12,8 @@ def test_file_to_folder(random_images):
 
     # Exercise
     file_to_folder(random_images)
-    actual = os.listdir(random_images)
+    actual = np.array(os.listdir(str(random_images)))
+    actual.sort()
 
     # Verify
     expected = ['0', '1']
