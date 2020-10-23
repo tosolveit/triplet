@@ -42,8 +42,8 @@ def setup():
     return input_shape, cnf, p, dataset, modelpath
 
 
-def train():
-    input_shape, cnf, p, dataset, modelpath = setup()
+def train(input_shape, cnf, p, dataset, modelpath):
+
     imagenet = tf.keras.applications.Xception(
         input_shape=input_shape,
         weights='imagenet',
@@ -84,4 +84,9 @@ def train():
 
 
 if __name__ == '__main__':
-    train()
+    input_shape, cnf, p, dataset, modelpath = setup()
+    train(input_shape=input_shape,
+          cnf=cnf,
+          p=p,
+          dataset=dataset,
+          modelpath=modelpath)
