@@ -24,10 +24,8 @@ def extractzip(zippedfilename, outputfoldername=None):
 
 
 def check_gpus():
-    gpus = tf.config.list_physical_devices('GPU')
-    if len(gpus) > 0:
-        print('available gpus:')
-        for gpu in gpus:
-            print(gpu)
+    gpus = len(tf.config.list_physical_devices('GPU'))
+    if gpus > 0:
+        print(f'available gpus:{gpus}')
     else:
         print('no gpus found on machine')

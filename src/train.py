@@ -6,44 +6,44 @@ from datetime import datetime
 
 from processinput import ProcessInput
 from gempoolinglayer import GeMPoolingLayer
-from helpers import check_gpus, extractzip
+from helpers import check_gpus
 import os
 
 
-# check if gpus are found on the machine and list them
-check_gpus()
+def setup():
+    # check if gpus are found on the machine and list them
+    check_gpus()
 
-# get configuration file path
-p = os.path.abspath(os.path.join(__file__, "../.."))
-params_path = os.path.join(p, 'params.yaml')
+    # get configuration file path
+    p = os.path.abspath(os.path.join(__file__, "../.."))
+    params_path = os.path.join(p, 'params.yaml')
 
-# read config based on params, params.yaml is at the project root
-cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
+    # read config based on params, params.yaml is at the project root
+    cnf = Box.from_yaml(filename=params_path, Loader=ruamel.yaml.Loader)
 
-# define input data
-traindata = os.path.join(p, 'data/train')
+    # define input data
+    traindata = os.path.join(p, 'data/train')
 
-# create and model path
-modelpath = os.path.join(p, cnf.model.name)
+    # create and model path
+    modelpath = os.path.join(p, cnf.model.name)
 
+    # create tensorflow dataset object
+    processinput = ProcessInput(data_dir=traindata,
+                                num_classes_per_batch=cnf.triplet.num_classes_per_batch,
+                                num_images_per_class=cnf.triplet.num_images_per_class,
+                                channels=cnf.image.channels,
+                                img_width=cnf.image.width,
+                                img_height=cnf.image.height,
+                                file_extension=cnf.image.extension)
+    dataset = processinput.train_input_fn()
 
-
-# create tensorflow dataset object
-processinput = ProcessInput(data_dir=traindata,
-                            num_classes_per_batch=cnf.triplet.num_classes_per_batch,
-                            num_images_per_class=cnf.triplet.num_images_per_class,
-                            channels=cnf.image.channels,
-                            img_width=cnf.image.width,
-                            img_height=cnf.image.height,
-                            file_extension=cnf.image.extension)
-dataset = processinput.train_input_fn()
-
-
-reg = tf.keras.regularizers
-input_shape = (cnf.image.height, cnf.image.width, cnf.image.channels)
+    reg = tf.keras.regularizers
+    input_shape = (cnf.image.height, cnf.image.width, cnf.image.channels)
+    return input_shape, cnf, p, dataset, modelpath
 
 
-def train():
+def train(input_shape, cnf, p, dataset, modelpath):
+
     imagenet = tf.keras.applications.Xception(
         input_shape=input_shape,
         weights='imagenet',
@@ -84,4 +84,9 @@ def train():
 
 
 if __name__ == '__main__':
-    train()
+    input_shape, cnf, p, dataset, modelpath = setup()
+    train(input_shape=input_shape,
+          cnf=cnf,
+          p=p,
+          dataset=dataset,
+          modelpath=modelpath)

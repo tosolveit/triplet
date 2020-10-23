@@ -1,0 +1,19 @@
+name: triplet
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  tests:
+    runs-on: [ubuntu-latest]
+    container: tensorflow/tensorflow
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: unittest
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install -e .[dev]
+          pytest
