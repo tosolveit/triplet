@@ -1,4 +1,4 @@
-name: triplet
+name: development-workflow
 on:
   push:
     branches:

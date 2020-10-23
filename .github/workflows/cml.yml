@@ -1,4 +1,4 @@
-name: triplet
+name: production-workflow
 on:
   push:
     branches:
