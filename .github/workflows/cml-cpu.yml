@@ -1,0 +1,111 @@
+name: cpu-workflow
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  tests:
+    runs-on: [ubuntu-latest]
+    container: tensorflow/tensorflow
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: unittest
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install -e .[dev]
+          pytest
+
+  deploy-cloud-runner:
+    needs: tests
+    runs-on: [ubuntu-latest]
+    container: docker://dvcorg/cml-py3
+
+    steps:
+      - name: deploy
+        env:
+          repo_token: ${{ secrets.REPO_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          #AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        run: |
+          echo "Deploying..."
+          RUNNER_LABELS="cml,aws"
+          RUNNER_REPO="https://github.com/tosolveit/triplet"
+          MACHINE="cml$(date +%s)"
+
+          (
+          docker-machine create \
+            --driver amazonec2 \
+            --amazonec2-instance-type c4.4xlarge \
+            --amazonec2-vpc-id vpc-d6c6d6be \
+            --amazonec2-region us-east-2 \
+            --amazonec2-zone b \
+            --amazonec2-ssh-user ubuntu \
+            --amazonec2-ami ami-07b11e59bc74961b5 \
+            --amazonec2-root-size 64 \
+            $MACHINE && \
+          eval "$(docker-machine env --shell sh $MACHINE)" && \
+
+          docker-machine ssh $MACHINE "sudo mkdir -p /docker_machine && sudo chmod 777 /docker_machine" && \
+          docker-machine scp -r -q ~/.docker/machine/ $MACHINE:/docker_machine && \
+          docker run --name runner --gpus all -d \
+            -v /docker_machine/machine:/root/.docker/machine \
+            -e DOCKER_MACHINE=$MACHINE \
+            -e repo_token=$repo_token \
+            -e RUNNER_LABELS=$RUNNER_LABELS \
+            -e RUNNER_REPO=$RUNNER_REPO \
+            -e RUNNER_IDLE_TIMEOUT=120 \
+            dvcorg/cml-py3:latest && \
+          sleep 20 && echo "Deployed $MACHINE"
+          ) || (docker-machine rm -y -f $MACHINE && exit 1)
+  train:
+    needs: deploy-cloud-runner
+    runs-on: [self-hosted,cml]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: cml_run
+        env:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          apt-get update -y
+          apt-get install python3-dev -y
+          apt install imagemagick -y
+
+          echo 'will modify setup.py or add requirements.txt'
+          pip install -e .[dev]
+          pip install dvc[s3]
+          pip install nvgpu
+
+          CUDA_VISIBLE_DEVICES=$(nvgpu available)
+          echo 'available gpus'
+          echo $CUDA_VISIBLE_DEVICES
+
+
+          # DVC stuff
+          git fetch --prune
+          dvc pull data/pix512.zip.dvc
+          dvc repro data/dvc.yaml
+
+          # other staging
+          cd data
+          cp -r pix512 train_stage
+          cp -r pix512 test_stage
+          cd ..
+          python src/generate_augmentation.py
+          python src/train.py
+          python src/evaluate.py
+
+          echo "## Triplet training metrics" > report.md
+          cat metrics.txt >> report.md
+
+          cml-send-comment report.md
