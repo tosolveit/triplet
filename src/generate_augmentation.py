@@ -78,7 +78,7 @@ def main():
                        output_directory=data_dest,
                        width=cnf.image.width,
                        height=cnf.image.height,
-                       nsamples=cnf.image.nsamples)
+                       nsamples=cnf.augment.nsamples)
 
 
 if __name__ == '__main__':
