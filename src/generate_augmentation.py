@@ -58,15 +58,14 @@ def file_to_folder(datadir, exten='jpeg'):
 
 def augment_images(source_directory, output_directory, width=120, height=120, nsamples=50000):
     p = Augmentor.Pipeline(source_directory=source_directory,output_directory=output_directory)
-    p.resize(probability=1, width=width, height=height, resample_filter=u'NEAREST')
     p.rotate(probability=0.7, max_left_rotation=10, max_right_rotation=10)
-    p.zoom(probability=0.5, min_factor=1.1, max_factor=1.3)
-    p.random_brightness(probability=0.3, min_factor=0.4, max_factor=1.4)
-    p.random_color(probability=0.3, min_factor=0.5, max_factor=1.0)
-    p.random_contrast(probability=0.3, min_factor=0.7, max_factor=1.0)
-    p.crop_random(probability=0.3, percentage_area=0.7)
-    p.skew_tilt(probability=0.4, magnitude=0.5)
-    p.skew_corner(probability=0.1, magnitude=0.3)
+    p.zoom(probability=0.5, min_factor=0.6, max_factor=1.1)
+    p.random_brightness(probability=0.3, min_factor=0.9, max_factor=1.4)
+    p.random_color(probability=0.3, min_factor=0.8, max_factor=1.0)
+    p.crop_random(probability=0.5, percentage_area=0.85)
+    p.skew_tilt(probability=0.4, magnitude=0.2)
+    p.skew_corner(probability=0.1, magnitude=0.1)  
+    p.resize(probability=1, width=width, height=height, resample_filter=u'NEAREST')
     p.sample(nsamples)
 
 
